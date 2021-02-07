@@ -1,0 +1,7 @@
+build/
+projects/
+logs/
+kbengine/
+
+kbengine-*.tar.gz
+.env

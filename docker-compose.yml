@@ -1,0 +1,48 @@
+version: "3.5"
+
+networks:
+  backend:
+    driver: ${NETWORKS_DRIVER}
+
+services: 
+  workspace:
+    build: 
+      context: ./workspace
+    cap_add:
+      - ALL
+    environment: 
+      - TZ=${WORKSPACE_TIMEZONE}
+      - KBE_ROOT=/home/kbengine/bin
+    tty: true
+    volumes: 
+      - ./workspace/kbengine:/home/kbengine/bin
+      - ./workspace/projects:/home/kbengine/projects
+    networks:
+      - backend
+    ports:
+      - "20013:20013"
+      - "20015:20015"
+      - "20016:20016"
+      - "20017:20017"
+      - "20018:20018"
+    working_dir: /home/kbengine/projects
+    depends_on: 
+      - mysql
+
+  mysql:
+    container_name: mysql
+    build:
+      context: ./mysql
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${WORKSPACE_TIMEZONE}
+    volumes:
+      - ./mysql/mysql:/var/lib/mysql
+      - ./mysql:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    networks:
+      - backend
